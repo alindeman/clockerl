@@ -11,19 +11,23 @@ init({tcp, http}, _Req, _Opts) ->
   {upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-  erlang:start_timer(1000, self(), <<"Hello!">>),
+  erlang:start_timer(1000, self(), clock_tick),
   {ok, Req, undefined_state}.
 
-websocket_handle({text, Msg}, Req, State) ->
-  {reply, {text, << "That's what she said! ", Msg/binary >>}, Req, State};
+% websocket_handle({text, Msg}, Req, State) ->
+%   {reply, {text, << "That's what she said! ", Msg/binary >>}, Req, State};
 websocket_handle(_Data, Req, State) ->
   {ok, Req, State}.
 
-websocket_info({timeout, _Ref, Msg}, Req, State) ->
-  erlang:start_timer(1000, self(), <<"How' you doin'?">>),
-  {reply, {text, Msg}, Req, State};
+websocket_info({timeout, _Ref, clock_tick}, Req, State) ->
+  erlang:start_timer(1000, self(), clock_tick),
+  Json = "{\"type\": \"clock\", \"data\": \"" ++ integer_to_list(epoch_time()) ++ "\"}",
+  {reply, {text, Json}, Req, State};
 websocket_info(_Info, Req, State) ->
   {ok, Req, State}.
 
 websocket_terminate(_Reason, _Req, _State) ->
   ok.
+
+epoch_time() ->
+  calendar:datetime_to_gregorian_seconds(calendar:universal_time()).
