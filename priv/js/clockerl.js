@@ -3,6 +3,6 @@ $(function() {
 
   socket.onmessage = function(event) {
     var message = JSON.parse(event.data)
-    $('ul.clock').append($('li').text(message['data'])
+    $('ul.clock').append($('li').text(message['data']))
   };
 })
